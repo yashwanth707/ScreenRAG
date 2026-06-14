@@ -161,6 +161,3 @@ pgagi-interview-system/
 └── README.md
 ```
 
-## License
-
-MIT
