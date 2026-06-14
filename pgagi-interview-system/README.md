@@ -23,6 +23,13 @@ Backend (FastAPI + Python 3.11)
     └── SQLite → session persistence
 ```
 
+## 📐 Key Design Decisions
+
+1. **Dual LLM Architecture for Reliability:** The system primarily uses local models (`llama3` via Ollama) to ensure privacy and reduce costs. However, a fallback to the Gemini API is implemented seamlessly to guarantee uptime if the local server fails or is overloaded.
+2. **Voice-First Experience:** Recognizing that typed interviews don't accurately simulate real technical screens, we implemented a robust Web Audio API integration with `openai-whisper`. This includes real-time waveform visualization, silence detection for auto-submission, and deep audio analytics (WPM, naturalness, filler words).
+3. **Dynamic RAG Grounding:** Rather than using static question banks, we utilize `ChromaDB` and `sentence-transformers` to retrieve relevant textbook sections based on both the candidate's resume and target role. This ensures questions are highly technical, contextual, and domain-specific.
+4. **State Machine Session Management:** The interview lifecycle is strictly enforced via server-side session persistence using SQLite and client-side React Context with `localStorage` resilience.
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -75,11 +82,7 @@ npm run dev
 - **Backend API:** http://localhost:8000
 - **API Docs:** http://localhost:8000/docs
 
-### Docker (Alternative)
 
-```bash
-docker-compose up --build
-```
 
 ## 📡 API Endpoints
 
@@ -122,7 +125,7 @@ python knowledge_base/ingest.py
 | PDF Parsing | pdfplumber |
 | Database | SQLite via aiosqlite |
 | Frontend | React 18 + Vite, CSS Modules, Web Audio API |
-| Containerization | Docker Compose |
+
 
 ## 📁 Project Structure
 
@@ -155,7 +158,6 @@ pgagi-interview-system/
 │   │   ├── api/                 # Axios client
 │   │   └── styles/              # Global CSS design system
 │   └── index.html
-├── docker-compose.yml
 └── README.md
 ```
 

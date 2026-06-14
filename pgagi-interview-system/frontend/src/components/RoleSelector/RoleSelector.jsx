@@ -1,12 +1,5 @@
 /**
- * RoleSelector Component
- *
- * Three role cards for interview type selection:
- * - AI/ML Engineer
- * - Backend Engineer
- * - Data Scientist
- *
- * Each card has an icon, title, description, and selected state.
+ * Role selection.
  */
 
 import React from 'react';
@@ -39,7 +32,7 @@ const ROLES = [
 export default function RoleSelector({ selectedRole, onRoleSelect }) {
   return (
     <div className={styles.wrapper}>
-      <label className={styles.label}>Select Target Role</label>
+      <label className={styles.label}>Choose Your Path</label>
       <div className={styles.grid}>
         {ROLES.map((role) => (
           <button

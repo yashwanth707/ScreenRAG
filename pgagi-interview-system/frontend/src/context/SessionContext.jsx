@@ -1,22 +1,17 @@
 /**
- * ScreenRAG — Session Context
- *
- * Global state management using React Context + useReducer.
- * Manages the interview flow: UPLOAD → INTERVIEW → SUMMARY
- *
- * Bonus: Persists session to localStorage for resume on page refresh.
+ * Global state management using React Context.
  */
 
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 
-// Step enum for interview flow
+
 export const STEPS = {
   UPLOAD: 'UPLOAD',
   INTERVIEW: 'INTERVIEW',
   SUMMARY: 'SUMMARY',
 };
 
-// Initial state
+
 const initialState = {
   sessionId: null,
   role: null,
@@ -26,7 +21,7 @@ const initialState = {
   currentStep: STEPS.UPLOAD,
 };
 
-// Action types
+
 const ACTIONS = {
   SET_SESSION: 'SET_SESSION',
   SET_STEP: 'SET_STEP',
@@ -34,7 +29,7 @@ const ACTIONS = {
   RESTORE: 'RESTORE',
 };
 
-// Reducer
+
 function sessionReducer(state, action) {
   switch (action.type) {
     case ACTIONS.SET_SESSION:
@@ -65,22 +60,19 @@ function sessionReducer(state, action) {
   }
 }
 
-// Context
+
 const SessionContext = createContext(null);
 
-// LocalStorage key
+
 const STORAGE_KEY = 'screenrag_session';
 
 /**
  * Session Provider Component
- *
- * Wraps the app with session state.
- * Persists to localStorage for page-refresh resilience.
  */
 export function SessionProvider({ children }) {
   const [state, dispatch] = useReducer(sessionReducer, initialState);
 
-  // Restore from localStorage on mount
+
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -95,14 +87,14 @@ export function SessionProvider({ children }) {
     }
   }, []);
 
-  // Persist to localStorage on state change
+
   useEffect(() => {
     if (state.sessionId) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
   }, [state]);
 
-  // Action creators
+
   const setSession = (data) => {
     dispatch({
       type: ACTIONS.SET_SESSION,

@@ -1,8 +1,5 @@
 /**
- * QuestionCard Component
- *
- * Displays a single AI-generated interview question
- * with topic tag and difficulty badge.
+ * Question card.
  */
 
 import React from 'react';

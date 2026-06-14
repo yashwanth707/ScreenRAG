@@ -1,24 +1,6 @@
 """
-ScreenRAG — RAG Engine (ChromaDB + SentenceTransformers)
-
-Core Retrieval-Augmented Generation component with two responsibilities:
-
-Part 1 — Knowledge Base Ingestion:
-    Loads PDF textbooks → chunks text → generates embeddings → stores in ChromaDB
-    Collections are role-scoped: ai_ml_kb, backend_kb, data_science_kb
-
-Part 2 — Context Retrieval:
-    Embeds a query → searches the role-specific collection → returns top-n chunks
-
-Chunking strategy: sliding window (800 tokens, 150 overlap, sentence boundaries)
-Embedding model: sentence-transformers all-MiniLM-L6-v2
-
-Usage:
-    # Ingestion (one-time, via knowledge_base/ingest.py)
-    ingest_documents(["path/to/book.pdf"], "ai_ml_kb")
-
-    # Retrieval (per question generation)
-    chunks = retrieve_context("gradient descent optimization", "ai_ml", n_results=5)
+RAG Engine for document ingestion and context retrieval.
+Uses ChromaDB and sentence-transformers.
 """
 
 import os
@@ -35,9 +17,7 @@ from config import settings
 logger = logging.getLogger(__name__)
 
 
-# ---------------------------------------------------------------------------
-# Singleton model + client instances
-# ---------------------------------------------------------------------------
+# Singleton clients
 _embedding_model: Optional[SentenceTransformer] = None
 _chroma_client: Optional[chromadb.PersistentClient] = None
 
@@ -62,9 +42,7 @@ def _get_chroma_client() -> chromadb.PersistentClient:
     return _chroma_client
 
 
-# ---------------------------------------------------------------------------
-# Role → Collection mapping
-# ---------------------------------------------------------------------------
+# Collection mapping
 ROLE_COLLECTION_MAP = {
     "ai_ml": "ai_ml_kb",
     "backend": "backend_kb",
@@ -77,9 +55,7 @@ def _get_collection_name(role: str) -> str:
     return ROLE_COLLECTION_MAP.get(role, f"{role}_kb")
 
 
-# ---------------------------------------------------------------------------
-# Text chunking — sliding window with sentence boundaries
-# ---------------------------------------------------------------------------
+# Text chunking
 def _split_into_sentences(text: str) -> list[str]:
     """
     Split text into sentences using regex.
@@ -161,34 +137,13 @@ def chunk_text(
     return chunks
 
 
-# ---------------------------------------------------------------------------
-# Part 1 — Knowledge Base Ingestion
-# ---------------------------------------------------------------------------
+# Knowledge Base Ingestion
 def ingest_documents(
     pdf_paths: list[str],
     collection_name: str,
     role: str = "",
 ) -> int:
-    """
-    Ingest PDF documents into a ChromaDB collection.
-    
-    Idempotent: skips if the collection already has documents.
-    
-    Pipeline:
-        1. Check if collection already populated → skip if so
-        2. Extract text page-by-page via pdfplumber
-        3. Chunk text with sliding window (800 tokens, 150 overlap)
-        4. Generate embeddings with SentenceTransformer
-        5. Store in ChromaDB with metadata
-    
-    Args:
-        pdf_paths: List of paths to PDF files.
-        collection_name: ChromaDB collection name (e.g., "ai_ml_kb").
-        role: Role identifier for metadata (e.g., "ai_ml").
-    
-    Returns:
-        Total number of chunks ingested.
-    """
+    """Ingest PDF documents into a ChromaDB collection. Idempotent."""
     client = _get_chroma_client()
     model = _get_embedding_model()
 
@@ -284,26 +239,13 @@ def ingest_documents(
     return total_chunks
 
 
-# ---------------------------------------------------------------------------
-# Part 2 — Context Retrieval
-# ---------------------------------------------------------------------------
+# Context Retrieval
 def retrieve_context(
     query: str,
     role: str,
     n_results: int = 5,
 ) -> list[str]:
-    """
-    Retrieve relevant document chunks for a query from the role-specific collection.
-    
-    Args:
-        query: Search query (e.g., resume skills + topic).
-        role: Role identifier ('ai_ml', 'backend', 'data_science').
-        n_results: Number of top results to return.
-    
-    Returns:
-        List of relevant text chunks, ordered by relevance.
-        Returns empty list if the collection is empty or doesn't exist.
-    """
+    """Retrieve relevant document chunks for a query from the role-specific collection."""
     try:
         client = _get_chroma_client()
         model = _get_embedding_model()
@@ -343,9 +285,7 @@ def retrieve_context(
         return []
 
 
-# ---------------------------------------------------------------------------
-# Utility — check ChromaDB health
-# ---------------------------------------------------------------------------
+
 def check_chroma_health() -> dict:
     """Check if ChromaDB is accessible and report collection stats."""
     try:

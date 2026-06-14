@@ -1,6 +1,4 @@
-/* ============================================================
-   InterviewChat — Voice-First Interview UI
-   ============================================================ */
+/* Voice-First Interview UI */
 
 .chatContainer {
   display: flex;
@@ -43,7 +41,7 @@
   to { opacity: 1; transform: translateX(0); }
 }
 
-/* ─── Answer Bubble ─────────────────────────────────────── */
+/* Answer Bubble */
 .answerBubble {
   background: rgba(139, 92, 246, 0.12);
   border: 1px solid rgba(139, 92, 246, 0.2);
@@ -84,7 +82,7 @@
   word-break: break-word;
 }
 
-/* ─── Voice Metrics Badges ──────────────────────────────── */
+/* Voice Metrics Badges */
 .voiceMetrics {
   display: flex;
   flex-wrap: wrap;
@@ -94,7 +92,7 @@
   border-top: 1px solid rgba(139, 92, 246, 0.1);
 }
 
-/* ─── Typing Indicator ──────────────────────────────────── */
+/* Typing Indicator */
 .typingBubble {
   display: flex;
   align-items: center;
@@ -111,13 +109,13 @@
   font-style: italic;
 }
 
-/* ─── Input Area ────────────────────────────────────────── */
+/* Input Area */
 .inputArea {
   padding-top: var(--space-md);
   border-top: 1px solid var(--border-subtle);
 }
 
-/* ─── Voice Error ───────────────────────────────────────── */
+/* Voice Error */
 .voiceError {
   display: flex;
   align-items: center;
@@ -131,7 +129,7 @@
   font-size: 0.82rem;
 }
 
-/* ─── Recording Panel ───────────────────────────────────── */
+/* Recording Panel */
 .recordingPanel {
   background: rgba(139, 92, 246, 0.06);
   border: 1px solid rgba(139, 92, 246, 0.15);
@@ -185,7 +183,7 @@
   border-radius: var(--radius-md);
 }
 
-/* ─── Waveform Canvas ───────────────────────────────────── */
+/* Waveform Canvas */
 .waveformCanvas {
   width: 100%;
   height: 64px;
@@ -194,7 +192,7 @@
   margin-bottom: var(--space-md);
 }
 
-/* ─── Recording Controls ────────────────────────────────── */
+/* Recording Controls */
 .recordingControls {
   display: flex;
   align-items: center;
@@ -224,7 +222,7 @@
   color: var(--accent-amber) !important;
 }
 
-/* ─── Processing Panel ──────────────────────────────────── */
+/* Processing Panel */
 .processingPanel {
   display: flex;
   align-items: center;
@@ -243,7 +241,7 @@
   font-style: italic;
 }
 
-/* ─── Text Input Mode ───────────────────────────────────── */
+/* Text Input Mode */
 .inputWrapper {
   display: flex;
   gap: var(--space-sm);
@@ -309,7 +307,7 @@
   color: var(--accent-cyan-light);
 }
 
-/* ─── Idle State ────────────────────────────────────────── */
+/* Idle State */
 .idlePanel {
   display: flex;
   align-items: center;
@@ -330,7 +328,7 @@
   font-style: italic;
 }
 
-/* ─── Responsive ────────────────────────────────────────── */
+/* Responsive */
 @media (max-width: 768px) {
   .recordingControls {
     flex-direction: column;

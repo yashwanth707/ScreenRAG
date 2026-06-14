@@ -1,11 +1,5 @@
 """
-ScreenRAG — Interview Router
-
-Handles the interactive interview flow: question generation and answer submission.
-
-Endpoints:
-    POST /interview/next-question — Generate the next interview question
-    POST /interview/answer        — Submit an answer to a question
+Interview router handling question generation and answer submission.
 """
 
 import logging
@@ -41,15 +35,9 @@ router = APIRouter(prefix="/interview", tags=["Interview"])
 
 @router.post("/next-question", response_model=QuestionResponse)
 async def next_question(request: NextQuestionRequest):
-    """
-    Generate the next interview question for a session.
-    
-    If the session has reached MAX_QUESTIONS, returns {done: true}.
-    Otherwise generates a personalized question using RAG + LLM.
-    """
+    """Generate the next interview question for a session."""
     session_id = request.session_id
 
-    # Check session exists
     session_data = await get_session_data_for_generation(session_id)
     if not session_data:
         raise HTTPException(
@@ -57,7 +45,6 @@ async def next_question(request: NextQuestionRequest):
             detail=f"Session '{session_id}' not found.",
         )
 
-    # Check if interview is complete
     if await is_session_complete(session_id):
         question_count = await database.get_question_count(session_id)
         return QuestionResponse(
@@ -68,11 +55,9 @@ async def next_question(request: NextQuestionRequest):
             done=True,
         )
 
-    # Get previous Q&A for context continuity
     previous_qa = await get_previous_qa(session_id)
     question_num = len(previous_qa) + 1
 
-    # Generate the question
     try:
         question_data = await generate_question(
             session_data=session_data,
@@ -89,7 +74,6 @@ async def next_question(request: NextQuestionRequest):
             detail=f"Failed to generate question: {str(e)}",
         )
 
-    # Save to database
     question_id = await save_question(session_id, question_data)
 
     return QuestionResponse(
@@ -105,15 +89,7 @@ async def next_question(request: NextQuestionRequest):
 
 @router.post("/answer", response_model=AnswerResponse)
 async def submit_answer(request: AnswerRequest):
-    """
-    Submit an answer to an interview question.
-    
-    Validates that:
-        1. The session exists and is active
-        2. The question exists and belongs to the session
-        3. The question hasn't already been answered
-    """
-    # Validate session exists
+    """Submit an answer to an interview question."""
     session = await database.get_session(request.session_id)
     if not session:
         raise HTTPException(
@@ -138,7 +114,6 @@ async def submit_answer(request: AnswerRequest):
             detail=f"Question '{request.question_id}' not found in session '{request.session_id}'.",
         )
 
-    # Check if already answered
     existing_answer = await database.get_answer_for_question(request.question_id)
     if existing_answer:
         raise HTTPException(
@@ -146,7 +121,6 @@ async def submit_answer(request: AnswerRequest):
             detail="This question has already been answered.",
         )
 
-    # Save the answer
     await save_answer_service(
         session_id=request.session_id,
         question_id=request.question_id,
@@ -166,15 +140,7 @@ async def submit_voice_answer(
     audio: UploadFile = File(...),
     question_asked_at: str = Form(""),
 ):
-    """
-    Submit a voice answer to an interview question.
-
-    Accepts audio via multipart form data. Processes it through the
-    VocalGauge pipeline: validate → preprocess → transcribe → analyze.
-
-    Saves the transcribed text as the answer and persists voice metrics.
-    """
-    # Validate session exists
+    """Submit a voice answer to an interview question."""
     session = await database.get_session(session_id)
     if not session:
         raise HTTPException(
@@ -199,7 +165,6 @@ async def submit_voice_answer(
             detail=f"Question '{question_id}' not found in session '{session_id}'.",
         )
 
-    # Check if already answered
     existing_answer = await database.get_answer_for_question(question_id)
     if existing_answer:
         raise HTTPException(
@@ -207,12 +172,10 @@ async def submit_voice_answer(
             detail="This question has already been answered.",
         )
 
-    # Save uploaded audio to disk
     from config import settings
     os.makedirs(settings.AUDIO_UPLOAD_DIR, exist_ok=True)
 
     audio_filename = f"{session_id}_{question_id}_{uuid.uuid4().hex[:8]}"
-    # Preserve original extension or default to .webm
     ext = ".webm"
     if audio.filename and "." in audio.filename:
         ext = "." + audio.filename.rsplit(".", 1)[-1].lower()
@@ -225,7 +188,6 @@ async def submit_voice_answer(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to save audio: {e}")
 
-    # Process through VocalGauge pipeline
     try:
         result = await process_voice_answer(
             audio_path=audio_path,
@@ -242,10 +204,8 @@ async def submit_voice_answer(
         logger.error(f"Voice processing failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Voice processing failed: {e}")
 
-    # Use transcript as the answer text (fallback if empty)
     answer_text = result.transcript or "(No speech detected)"
 
-    # Save the answer with voice mode
     answer_id = str(uuid.uuid4())
     await database.save_answer(
         answer_id=answer_id,
@@ -255,7 +215,6 @@ async def submit_voice_answer(
         answer_mode="voice",
     )
 
-    # Save voice metrics
     metrics_id = str(uuid.uuid4())
     await database.save_voice_metrics(
         metrics_id=metrics_id,
@@ -292,7 +251,6 @@ async def submit_voice_answer(
         f"confidence={result.confidence_score}"
     )
 
-    # Clean up audio file after processing
     try:
         if os.path.exists(audio_path):
             os.remove(audio_path)

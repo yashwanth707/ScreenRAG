@@ -1,18 +1,6 @@
 """
-ScreenRAG — FastAPI Application Entry Point
-
-AI-Powered Technical Interview Platform
-
-Routes:
-    POST /resume/upload              → Upload resume + create session
-    GET  /session/{session_id}       → Get session with Q&A data
-    POST /interview/next-question    → Generate next interview question
-    POST /interview/answer           → Submit answer to a question
-    GET  /summary/{session_id}       → Generate interview summary
-    GET  /health                     → System health check
-
-Run with:
-    uvicorn main:app --reload --port 8000
+FastAPI entry point for the ScreenRAG backend.
+Run with: uvicorn main:app --reload --port 8000
 """
 
 import os
@@ -30,9 +18,7 @@ from services.llm_client import check_ollama_health
 from services.rag_engine import check_chroma_health
 from routers import resume, session, interview, summary
 
-# ---------------------------------------------------------------------------
-# Logging configuration
-# ---------------------------------------------------------------------------
+# Logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
@@ -40,21 +26,7 @@ logging.basicConfig(
 logger = logging.getLogger("screenrag")
 
 
-# ---------------------------------------------------------------------------
-# Application lifespan — startup/shutdown
-# ---------------------------------------------------------------------------
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """
-    Application lifecycle manager.
-    
-    Startup:
-        - Create required directories (uploads, data, chroma_store)
-        - Initialize SQLite database tables
-    
-    Shutdown:
-        - Log shutdown (cleanup handled by aiosqlite)
-    """
+# Application lifecycle manager
     # Startup
     os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
     os.makedirs(settings.AUDIO_UPLOAD_DIR, exist_ok=True)
@@ -75,9 +47,7 @@ async def lifespan(app: FastAPI):
     logger.info("ScreenRAG backend shutting down.")
 
 
-# ---------------------------------------------------------------------------
 # FastAPI app initialization
-# ---------------------------------------------------------------------------
 app = FastAPI(
     title="ScreenRAG API",
     description=(
@@ -89,9 +59,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# ---------------------------------------------------------------------------
-# CORS — allow Vite dev server and common dev origins
-# ---------------------------------------------------------------------------
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -105,23 +73,17 @@ app.add_middleware(
 )
 
 
-# ---------------------------------------------------------------------------
 # Register routers
-# ---------------------------------------------------------------------------
 app.include_router(resume.router)
 app.include_router(session.router)
 app.include_router(interview.router)
 app.include_router(summary.router)
 
 
-# ---------------------------------------------------------------------------
-# Health check endpoint
-# ---------------------------------------------------------------------------
+
 @app.get("/health", response_model=HealthResponse, tags=["System"])
 async def health_check():
-    """
-    Check system health: Ollama, ChromaDB, and SQLite status.
-    """
+    """Check system health: Ollama, ChromaDB, and SQLite status."""
     # Check Ollama
     ollama_status = await check_ollama_health()
     ollama_ok = ollama_status.get("reachable", False)
@@ -148,9 +110,7 @@ async def health_check():
     )
 
 
-# ---------------------------------------------------------------------------
-# Root endpoint
-# ---------------------------------------------------------------------------
+
 @app.get("/", tags=["System"])
 async def root():
     """API root — basic info."""
@@ -162,9 +122,7 @@ async def root():
     }
 
 
-# ---------------------------------------------------------------------------
-# Direct run support
-# ---------------------------------------------------------------------------
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

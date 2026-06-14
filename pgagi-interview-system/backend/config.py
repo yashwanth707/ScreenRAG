@@ -1,44 +1,32 @@
-"""
-ScreenRAG — Configuration Module
-
-Loads all application settings from environment variables with sensible defaults.
-Uses pydantic-settings for type-safe configuration with .env file support.
-"""
+"""App configuration via pydantic-settings. Loads from .env with sensible defaults."""
 
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    """
-    Application settings loaded from .env file and environment variables.
-    
-    All fields have sensible defaults so the system can start with minimal
-    configuration. Only GEMINI_API_KEY needs to be explicitly set if Ollama
-    is unavailable.
-    """
 
-    # --- LLM Configuration ---
+    # LLM
     GEMINI_API_KEY: str = ""
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     OLLAMA_MODEL: str = "llama3"
-    OLLAMA_TIMEOUT: float = 600.0  # seconds — LLM can be slow on CPU
+    OLLAMA_TIMEOUT: float = 600.0  # can be slow on CPU
 
-    # --- Embedding Configuration ---
+    # Embeddings
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
 
-    # --- Storage Configuration ---
+    # Storage
     CHROMA_PERSIST_DIR: str = "./chroma_store"
     DB_PATH: str = "./data/interview.db"
     UPLOAD_DIR: str = "./uploads"
 
-    # --- Interview Configuration ---
+    # Interview
     MAX_QUESTIONS: int = 7
 
-    # --- Voice/Audio Configuration (VocalGauge Integration) ---
+    # Voice / audio
     WHISPER_MODEL: str = "base"
-    MIN_ANSWER_DURATION: float = 3.0    # seconds — below this, answer is too short
-    MAX_ANSWER_DURATION: float = 300.0  # 5 minutes max per answer
-    SILENCE_AUTO_STOP: float = 5.0      # seconds of silence before auto-submit
+    MIN_ANSWER_DURATION: float = 3.0
+    MAX_ANSWER_DURATION: float = 300.0  # 5 min max
+    SILENCE_AUTO_STOP: float = 5.0
     AUDIO_UPLOAD_DIR: str = "./audio_uploads"
 
     class Config:
@@ -46,5 +34,4 @@ class Settings(BaseSettings):
         env_file_encoding = "utf-8"
 
 
-# Singleton settings instance — import this everywhere
 settings = Settings()

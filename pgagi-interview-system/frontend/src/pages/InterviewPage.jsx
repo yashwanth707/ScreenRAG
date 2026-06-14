@@ -1,13 +1,5 @@
 /**
- * InterviewPage — Step 2: Live Interview (Voice-First)
- *
- * Chat-style interface with:
- * - Header with role, candidate name, progress bar
- * - Auto-fetches first question on mount
- * - Voice recording as primary answer mode
- * - "Type instead" text fallback
- * - "I don't know, Next Question" skip
- * - Redirects to /summary when all questions done
+ * Step 2: Live Interview
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -34,11 +26,11 @@ export default function InterviewPage() {
   const [totalQuestions, setTotalQuestions] = useState(7);
   const [error, setError] = useState(null);
 
-  // Track when each question is shown (for response latency)
+
   const questionAskedAtRef = useRef(null);
   const isFetchingRef = useRef(false);
 
-  // Fetch the next question
+
   const fetchNextQuestion = useCallback(async () => {
     if (!sessionId || isFetchingRef.current) return;
 
@@ -50,7 +42,7 @@ export default function InterviewPage() {
       const data = await getNextQuestion(sessionId);
 
       if (data.done) {
-        // Interview complete — navigate to summary
+
         setStep(STEPS.SUMMARY);
         navigate('/summary');
         return;
@@ -60,7 +52,7 @@ export default function InterviewPage() {
       setQuestionNumber(data.question_number);
       setTotalQuestions(data.total_questions);
 
-      // Record the timestamp when this question was shown
+
       questionAskedAtRef.current = new Date().toISOString();
 
     } catch (err) {
@@ -74,19 +66,19 @@ export default function InterviewPage() {
     }
   }, [sessionId, navigate, setStep]);
 
-  // Fetch first question on mount
+
   useEffect(() => {
     fetchNextQuestion();
   }, [fetchNextQuestion]);
 
-  // Handle text answer submission
+
   const handleSubmitAnswer = async (answerText) => {
     if (!currentQuestion || !sessionId) return;
 
     try {
       await submitAnswer(sessionId, currentQuestion.question_id, answerText);
 
-      // Add Q&A to messages history
+
       setMessages((prev) => [
         ...prev,
         {
@@ -113,7 +105,7 @@ export default function InterviewPage() {
     }
   };
 
-  // Handle voice answer submission
+
   const handleSubmitVoiceAnswer = async (audioBlob) => {
     if (!currentQuestion || !sessionId) return;
 
@@ -124,7 +116,7 @@ export default function InterviewPage() {
       questionAskedAtRef.current || '',
     );
 
-    // Add Q&A to messages history with transcript and voice metrics
+
     setMessages((prev) => [
       ...prev,
       {
@@ -148,7 +140,7 @@ export default function InterviewPage() {
     return result;
   };
 
-  // Handle skip question
+
   const handleSkipQuestion = async () => {
     if (!currentQuestion || !sessionId) return;
 
@@ -185,7 +177,7 @@ export default function InterviewPage() {
 
   return (
     <div className={styles.page}>
-      {/* Header */}
+
       <header className={styles.header}>
         <div className={styles.headerLeft}>
           <span className={styles.logoIcon}>◆</span>
@@ -203,14 +195,14 @@ export default function InterviewPage() {
         </div>
       </header>
 
-      {/* Progress bar */}
+
       <div className={styles.progressBar}>
         <div className="progress-track">
           <div className="progress-fill" style={{ width: `${progress}%` }} />
         </div>
       </div>
 
-      {/* Chat area */}
+
       <main className={styles.main}>
         <div className={styles.container}>
           {error && (

@@ -1,15 +1,5 @@
 """
-ScreenRAG — Resume Parser Service
-
-Extracts structured information from uploaded PDF resumes using:
-    1. pdfplumber for raw text extraction
-    2. LLM for structured data extraction (name, skills, experience level)
-
-The LLM is prompted to return JSON-only output, parsed with retry on failure.
-
-Usage:
-    data = await parse_resume_pdf("/path/to/resume.pdf")
-    # data = {name, raw_text, skills, technologies, projects_summary, experience_level}
+Extracts structured information from PDF resumes using pdfplumber and the LLM.
 """
 
 import logging
@@ -22,9 +12,7 @@ from services.llm_client import generate_json
 logger = logging.getLogger(__name__)
 
 
-# ---------------------------------------------------------------------------
 # LLM prompt for structured resume extraction
-# ---------------------------------------------------------------------------
 RESUME_EXTRACTION_PROMPT = """Analyze the following resume text and extract structured information.
 
 Resume Text:
@@ -58,26 +46,9 @@ RESUME_EXTRACTION_SYSTEM = (
 )
 
 
-# ---------------------------------------------------------------------------
 # PDF text extraction
-# ---------------------------------------------------------------------------
 def _extract_text_from_pdf(file_path: str) -> str:
-    """
-    Extract all text content from a PDF file using pdfplumber.
-    
-    Concatenates text from all pages with page breaks.
-    Handles common PDF issues (empty pages, encoding errors) gracefully.
-    
-    Args:
-        file_path: Absolute path to the PDF file.
-    
-    Returns:
-        Extracted text string. May be empty if PDF has no extractable text.
-    
-    Raises:
-        FileNotFoundError: If the file doesn't exist.
-        Exception: On PDF parsing errors.
-    """
+    """Extract all text content from a PDF file using pdfplumber."""
     pages_text = []
     
     with pdfplumber.open(file_path) as pdf:
@@ -95,36 +66,9 @@ def _extract_text_from_pdf(file_path: str) -> str:
     return full_text
 
 
-# ---------------------------------------------------------------------------
 # Main resume parsing function
-# ---------------------------------------------------------------------------
 async def parse_resume_pdf(file_path: str) -> dict[str, Any]:
-    """
-    Parse a PDF resume into structured data.
-    
-    Pipeline:
-        1. Extract raw text from PDF via pdfplumber
-        2. Send text to LLM for structured extraction
-        3. Parse and validate the LLM's JSON response
-    
-    Args:
-        file_path: Absolute path to the uploaded PDF resume.
-    
-    Returns:
-        Dictionary with keys:
-            - name (str): Candidate's full name
-            - raw_text (str): Complete extracted text
-            - skills (list[str]): Extracted skills
-            - technologies (list[str]): Technologies and tools
-            - projects_summary (str): Brief projects overview
-            - experience_level (str): "junior" | "mid" | "senior"
-            - education (str): Highest education level
-    
-    Raises:
-        ValueError: If no text could be extracted from the PDF.
-        HTTPException(503): If LLM is unavailable.
-    """
-    # Step 1: Extract raw text
+    """Parse a PDF resume into structured data."""
     raw_text = _extract_text_from_pdf(file_path)
     
     if not raw_text.strip():
@@ -133,11 +77,8 @@ async def parse_resume_pdf(file_path: str) -> dict[str, Any]:
             "The file may be scanned/image-based or corrupted."
         )
 
-    # Step 2: Truncate if too long (LLMs have context limits)
-    # Keep first ~6000 chars which covers most resumes
     truncated_text = raw_text[:6000] if len(raw_text) > 6000 else raw_text
 
-    # Step 3: Send to LLM for structured extraction
     prompt = RESUME_EXTRACTION_PROMPT.format(resume_text=truncated_text)
     
     try:
@@ -177,9 +118,7 @@ async def parse_resume_pdf(file_path: str) -> dict[str, Any]:
         }
 
 
-# ---------------------------------------------------------------------------
 # Helper functions
-# ---------------------------------------------------------------------------
 def _ensure_list(value: Any) -> list[str]:
     """Ensure a value is a list of strings."""
     if isinstance(value, list):

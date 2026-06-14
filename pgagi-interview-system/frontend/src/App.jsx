@@ -1,10 +1,5 @@
 /**
- * ScreenRAG — App Component
- *
- * Root component with React Router routes:
- *   /           → LandingPage (upload + role selection)
- *   /interview  → InterviewPage (live Q&A)
- *   /summary    → SummaryPage (results)
+ * Root component with React Router routes.
  */
 
 import React from 'react';
@@ -32,7 +27,7 @@ function App() {
           sessionId ? <SummaryPage /> : <Navigate to="/" replace />
         }
       />
-      {/* Catch-all redirect */}
+
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

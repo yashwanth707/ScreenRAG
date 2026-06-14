@@ -1,19 +1,7 @@
 """
-ScreenRAG — Dual LLM Client (Ollama + Gemini Fallback)
-
-Provides a unified interface for LLM text generation with automatic failover:
-    1. Try Ollama (local, via HTTP API) first
-    2. If Ollama fails (connection error, timeout, non-200), fall back to Gemini
-    3. If both fail, raise HTTPException(503)
-
-The fallback is SILENT to the user — only logged server-side.
-
-Mirrors the VocalGauge pattern: httpx async client for Ollama,
-google-generativeai SDK for Gemini, with JSON extraction utilities.
-
-Usage:
-    response = await generate("What is gradient descent?", system="You are a teacher.")
-    parsed = extract_json_from_response(response)
+Unified interface for LLM text generation with automatic fallback:
+1. Try local Ollama first
+2. Fall back to Gemini API on failure
 """
 
 import json
@@ -28,17 +16,12 @@ from config import settings
 
 logger = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------------
-# Gemini client — lazy-initialized to avoid import-time API key errors
-# ---------------------------------------------------------------------------
+# Gemini client (lazy-initialized)
 _gemini_model = None
 
 
 def _get_gemini_model():
-    """
-    Lazily initialize the Gemini generative model.
-    Only called when Ollama fails and we need the fallback.
-    """
+    """Lazily initialize the Gemini generative model for fallback use."""
     global _gemini_model
     if _gemini_model is None:
         if not settings.GEMINI_API_KEY or settings.GEMINI_API_KEY == "your_gemini_api_key_here":
@@ -51,23 +34,9 @@ def _get_gemini_model():
     return _gemini_model
 
 
-# ---------------------------------------------------------------------------
 # Ollama HTTP client
-# ---------------------------------------------------------------------------
 async def _generate_ollama(prompt: str, system: str = "") -> str:
-    """
-    Send a prompt to the Ollama API and return the response text.
-    
-    Args:
-        prompt: The user prompt text.
-        system: Optional system prompt for role/context setting.
-    
-    Returns:
-        The LLM response text.
-    
-    Raises:
-        Exception: On connection error, timeout, or non-200 status.
-    """
+    """Send a prompt to the Ollama API and return the response text."""
     payload = {
         "model": settings.OLLAMA_MODEL,
         "prompt": prompt,
@@ -92,23 +61,9 @@ async def _generate_ollama(prompt: str, system: str = "") -> str:
         return data.get("response", "")
 
 
-# ---------------------------------------------------------------------------
 # Gemini SDK client
-# ---------------------------------------------------------------------------
 async def _generate_gemini(prompt: str, system: str = "") -> str:
-    """
-    Send a prompt to Google Gemini API and return the response text.
-    
-    Args:
-        prompt: The user prompt text.
-        system: Optional system prompt (prepended to the user prompt).
-    
-    Returns:
-        The LLM response text.
-    
-    Raises:
-        Exception: On API errors or missing configuration.
-    """
+    """Send a prompt to Google Gemini API and return the response text."""
     model = _get_gemini_model()
     
     # Gemini doesn't have a native system prompt in the basic API,
@@ -127,26 +82,9 @@ async def _generate_gemini(prompt: str, system: str = "") -> str:
     return response.text
 
 
-# ---------------------------------------------------------------------------
-# Unified generate function — Ollama first, Gemini fallback
-# ---------------------------------------------------------------------------
+# Unified generate function
 async def generate(prompt: str, system: str = "") -> str:
-    """
-    Generate text using the LLM. Tries Ollama first, falls back to Gemini.
-    
-    The fallback is transparent to callers — they just get a response string.
-    Which backend was used is only logged, never exposed to the user.
-    
-    Args:
-        prompt: The user prompt text.
-        system: Optional system prompt for context/role setting.
-    
-    Returns:
-        The LLM response text.
-    
-    Raises:
-        HTTPException(503): If BOTH backends fail.
-    """
+    """Generate text using Ollama, falling back to Gemini if it fails."""
     # Attempt 1: Ollama (local)
     try:
         response = await _generate_ollama(prompt, system)
@@ -183,26 +121,9 @@ async def generate(prompt: str, system: str = "") -> str:
     )
 
 
-# ---------------------------------------------------------------------------
 # JSON extraction utilities
-# ---------------------------------------------------------------------------
 def extract_json_from_response(raw: str) -> dict:
-    """
-    Safely extract a JSON object from LLM output.
-    
-    LLMs sometimes wrap JSON in markdown fences, add explanatory text,
-    or include trailing content. This function strips all that away and
-    finds the outermost JSON object.
-    
-    Args:
-        raw: Raw text output from the LLM.
-    
-    Returns:
-        Parsed JSON dictionary.
-    
-    Raises:
-        json.JSONDecodeError: If no valid JSON can be extracted.
-    """
+    """Safely extract the outermost JSON object from LLM output, stripping markdown fences."""
     # Strip markdown code fences if present
     cleaned = re.sub(r"```json\s*", "", raw)
     cleaned = re.sub(r"```\s*", "", cleaned)
@@ -220,24 +141,7 @@ def extract_json_from_response(raw: str) -> dict:
 
 
 async def generate_json(prompt: str, system: str = "", retries: int = 1) -> dict:
-    """
-    Generate a JSON response from the LLM with automatic retry on parse failure.
-    
-    Combines generate() + extract_json_from_response() with retry logic.
-    On first parse failure, retries with a stricter prompt asking for JSON only.
-    
-    Args:
-        prompt: The user prompt text.
-        system: Optional system prompt.
-        retries: Number of retry attempts on parse failure.
-    
-    Returns:
-        Parsed JSON dictionary from the LLM response.
-    
-    Raises:
-        json.JSONDecodeError: If all attempts fail to produce valid JSON.
-        HTTPException(503): If the LLM backends are unavailable.
-    """
+    """Generate a JSON response with automatic retry on parse failure."""
     last_error: Optional[Exception] = None
 
     for attempt in range(1 + retries):
@@ -265,16 +169,9 @@ async def generate_json(prompt: str, system: str = "", retries: int = 1) -> dict
     raise last_error  # type: ignore[misc]
 
 
-# ---------------------------------------------------------------------------
-# Health check for Ollama
-# ---------------------------------------------------------------------------
+
 async def check_ollama_health() -> dict:
-    """
-    Check if Ollama is reachable and the configured model is available.
-    
-    Returns:
-        Health status dict with keys: reachable, model_available, models_list.
-    """
+    """Check if Ollama is reachable and the configured model is available."""
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.get(f"{settings.OLLAMA_BASE_URL}/api/tags")

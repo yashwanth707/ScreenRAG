@@ -1,19 +1,10 @@
-"""
-ScreenRAG — Pydantic Request/Response Models
-
-All typed schemas for API endpoints. Used for:
-    - Request validation (body parsing)
-    - Response serialization (JSON output)
-    - OpenAPI documentation (auto-generated)
-"""
+"""Pydantic request/response models for all API endpoints."""
 
 from typing import Optional
 from pydantic import BaseModel, Field
 
 
-# ---------------------------------------------------------------------------
-# Request Models
-# ---------------------------------------------------------------------------
+# Request models
 class NextQuestionRequest(BaseModel):
     """Request body for POST /interview/next-question."""
     session_id: str = Field(..., description="UUID of the active session")
@@ -26,11 +17,9 @@ class AnswerRequest(BaseModel):
     answer_text: str = Field(..., min_length=1, description="Candidate's answer text")
 
 
-# ---------------------------------------------------------------------------
-# Voice Metrics Models
-# ---------------------------------------------------------------------------
+# Voice metrics
 class VoiceMetrics(BaseModel):
-    """Per-answer voice analytics from VocalGauge engine."""
+    """Per-answer voice analytics from the audio processing pipeline."""
     duration_seconds: float = Field(0.0, description="How long the candidate spoke")
     response_latency: float = Field(0.0, description="Seconds before first word")
     wpm: float = Field(0.0, description="Words per minute")
@@ -46,18 +35,14 @@ class VoiceMetrics(BaseModel):
 
 
 class VoiceAnswerResponse(BaseModel):
-    """Response for POST /interview/answer-voice."""
     saved: bool = Field(True, description="Whether the answer was saved")
     question_number: int = Field(..., description="The question number that was answered")
     transcript: str = Field("", description="Transcribed answer text")
     voice_metrics: VoiceMetrics = Field(default_factory=VoiceMetrics)
 
 
-# ---------------------------------------------------------------------------
-# Response Models
-# ---------------------------------------------------------------------------
+# Response models
 class ResumeUploadResponse(BaseModel):
-    """Response for POST /resume/upload."""
     session_id: str = Field(..., description="UUID of the created session")
     candidate_name: str = Field(..., description="Extracted candidate name")
     skills: list[str] = Field(default_factory=list, description="Extracted skills list")
@@ -66,7 +51,6 @@ class ResumeUploadResponse(BaseModel):
 
 
 class QuestionResponse(BaseModel):
-    """Response for POST /interview/next-question."""
     question_id: str = Field(..., description="UUID of the generated question")
     question_text: str = Field(..., description="The interview question")
     question_number: int = Field(..., description="Current question number (1-indexed)")
@@ -77,13 +61,11 @@ class QuestionResponse(BaseModel):
 
 
 class AnswerResponse(BaseModel):
-    """Response for POST /interview/answer."""
     saved: bool = Field(True, description="Whether the answer was saved")
     question_number: int = Field(..., description="The question number that was answered")
 
 
 class QAPair(BaseModel):
-    """A single question-answer pair for session display."""
     question_id: str
     question_number: int
     question_text: str
@@ -96,7 +78,6 @@ class QAPair(BaseModel):
 
 
 class SessionResponse(BaseModel):
-    """Response for GET /session/{session_id}."""
     session_id: str
     candidate_name: Optional[str] = None
     role: str
@@ -107,7 +88,7 @@ class SessionResponse(BaseModel):
 
 
 class VoiceAggregate(BaseModel):
-    """Aggregate voice analytics for the entire interview session."""
+    """Aggregate voice analytics across all voice answers in a session."""
     avg_response_latency: float = Field(0.0, description="Avg seconds before first word")
     avg_naturalness: float = Field(0.0, description="Avg reading vs natural score")
     avg_wpm: float = Field(0.0, description="Avg words per minute")
@@ -117,7 +98,6 @@ class VoiceAggregate(BaseModel):
 
 
 class SummaryAnalysis(BaseModel):
-    """LLM-generated interview analysis."""
     topics_covered: list[str] = Field(default_factory=list)
     strengths: list[str] = Field(default_factory=list)
     areas_for_improvement: list[str] = Field(default_factory=list)
@@ -127,7 +107,6 @@ class SummaryAnalysis(BaseModel):
 
 
 class SummaryResponse(BaseModel):
-    """Response for GET /summary/{session_id}."""
     session_id: str
     candidate_name: Optional[str] = None
     role: str
@@ -138,7 +117,6 @@ class SummaryResponse(BaseModel):
 
 
 class HealthResponse(BaseModel):
-    """Response for GET /health."""
     status: str = Field(..., description="Overall system status")
     ollama: bool = Field(False, description="Ollama reachable")
     chroma: bool = Field(False, description="ChromaDB available")

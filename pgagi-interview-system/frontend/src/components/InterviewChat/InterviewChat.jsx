@@ -1,20 +1,12 @@
 /**
- * InterviewChat Component — Voice-First Interview Interface
- *
- * Chat-style interface with voice recording as the primary input:
- * - Questions appear as AI bubbles on the left
- * - Auto-starts microphone recording when a question appears
- * - Shows real-time waveform visualization while recording
- * - "Stop & Submit" to send audio, "Type instead" to fall back to text
- * - "I don't know, Next Question" skip button
- * - Displays transcript + voice metric badges on answer bubbles
+ * Voice-First Interview Interface
  */
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import QuestionCard from '../QuestionCard/QuestionCard';
 import styles from './InterviewChat.module.css';
 
-// Recording states
+
 const VOICE_STATE = {
   IDLE: 'idle',
   REQUESTING: 'requesting',   // Requesting mic permission
@@ -53,12 +45,12 @@ export default function InterviewChat({
   const silenceStartRef = useRef(null);
   const readingTimerRef = useRef(null);
 
-  // Auto-scroll to bottom when new messages arrive
+
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, currentQuestion, isLoading, voiceState]);
 
-  // Auto-resize textarea (text mode)
+
   useEffect(() => {
     const textarea = textareaRef.current;
     if (textarea) {
@@ -67,17 +59,17 @@ export default function InterviewChat({
     }
   }, [answer]);
 
-  // Auto-start recording when a new question appears
+
   useEffect(() => {
     if (currentQuestion && !isLoading) {
-      // Reset states for new question
+
       setVoiceState(VOICE_STATE.IDLE);
       setRecordingTime(0);
       setVoiceError(null);
       setLastVoiceResult(null);
       setAnswer('');
 
-      // Calculate reading delay: ~3 words per second, min 2 seconds
+
       const wordCount = currentQuestion.question_text.split(/\s+/).length;
       const readingDelayMs = Math.max(2000, Math.floor((wordCount / 3) * 1000));
 
@@ -90,7 +82,7 @@ export default function InterviewChat({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentQuestion?.question_id]);
 
-  // Cleanup on unmount
+
   useEffect(() => {
     return () => {
       stopRecordingCleanup();
@@ -98,7 +90,7 @@ export default function InterviewChat({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ─── Recording Logic ───────────────────────────────────────
+
   const startRecording = useCallback(async () => {
     setVoiceError(null);
     setVoiceState(VOICE_STATE.REQUESTING);
@@ -225,7 +217,7 @@ export default function InterviewChat({
     });
   }, [voiceState, onSubmitVoiceAnswer, stopRecordingCleanup]);
 
-  // ─── Silence Detection ─────────────────────────────────────
+
   const startSilenceDetection = useCallback((analyser) => {
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
@@ -249,7 +241,7 @@ export default function InterviewChat({
     }, 200);
   }, [stopAndSubmitRecording]);
 
-  // ─── Waveform Visualization ────────────────────────────────
+
   const drawWaveform = useCallback(() => {
     const canvas = canvasRef.current;
     const analyser = analyserRef.current;
@@ -297,7 +289,7 @@ export default function InterviewChat({
     draw();
   }, []);
 
-  // ─── Text Mode Handlers ────────────────────────────────────
+
   const switchToTextMode = useCallback(() => {
     stopRecordingCleanup();
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
@@ -343,14 +335,14 @@ export default function InterviewChat({
     }
   };
 
-  // ─── Format recording time ─────────────────────────────────
+
   const formatTime = (secs) => {
     const m = Math.floor(secs / 60).toString().padStart(2, '0');
     const s = (secs % 60).toString().padStart(2, '0');
     return `${m}:${s}`;
   };
 
-  // ─── Render Helper: Voice Metric Badges ────────────────────
+
   const renderVoiceMetrics = (metrics) => {
     if (!metrics) return null;
 
@@ -387,7 +379,7 @@ export default function InterviewChat({
 
   return (
     <div className={styles.chatContainer}>
-      {/* Messages area */}
+
       <div className={styles.messagesArea}>
         {messages.map((msg, index) => (
           <div
@@ -426,7 +418,7 @@ export default function InterviewChat({
           </div>
         ))}
 
-        {/* Current unanswered question */}
+
         {currentQuestion && !isLoading && (
           <div className={`${styles.message} ${styles.aiMessage} animate-slide-left`}>
             <QuestionCard
@@ -438,7 +430,7 @@ export default function InterviewChat({
           </div>
         )}
 
-        {/* Typing indicator */}
+
         {isLoading && (
           <div className={`${styles.message} ${styles.aiMessage}`}>
             <div className={styles.typingBubble}>
@@ -455,7 +447,7 @@ export default function InterviewChat({
         <div ref={chatEndRef} />
       </div>
 
-      {/* Input area — Voice or Text mode */}
+
       {currentQuestion && !isLoading && (
         <div className={styles.inputArea}>
           {/* Voice Error */}
@@ -501,21 +493,21 @@ export default function InterviewChat({
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                     <rect x="6" y="6" width="12" height="12" rx="2" />
                   </svg>
-                  Stop & Submit
+                  Send Answer
                 </button>
                 <button
                   className={`btn btn-ghost ${styles.textFallbackBtn}`}
                   onClick={switchToTextMode}
                   id="type-instead-btn"
                 >
-                  ⌨ Type instead
+                  ⌨ Prefer to type?
                 </button>
                 <button
                   className={`btn btn-ghost ${styles.skipBtn}`}
                   onClick={handleSkip}
                   id="skip-question-btn"
                 >
-                  I don't know →
+                  I'm not sure, move on →
                 </button>
               </div>
             </div>
@@ -540,7 +532,7 @@ export default function InterviewChat({
                   value={answer}
                   onChange={(e) => setAnswer(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Type your answer here... (Enter to submit, Shift+Enter for new line)"
+                  placeholder="Share your thoughts... (Enter to submit, Shift+Enter for new line)"
                   className={styles.textarea}
                   rows={3}
                   disabled={isSubmitting}
@@ -571,7 +563,7 @@ export default function InterviewChat({
                     onClick={handleSkip}
                     disabled={isSubmitting}
                   >
-                    Skip →
+                    Skip for now →
                   </button>
                 </div>
               </div>
@@ -596,7 +588,7 @@ export default function InterviewChat({
                   <path d="M2 12h4l3-9 5 18 3-9h5" />
                 </svg>
               </div>
-              <span className={styles.idleText}>Reading time... (Mic will auto-start)</span>
+              <span className={styles.idleText}>Take a moment to read... (Mic will open shortly)</span>
               <button 
                 className={`btn btn-primary ${styles.startNowBtn}`}
                 onClick={() => {
@@ -605,7 +597,7 @@ export default function InterviewChat({
                 }}
                 style={{ marginTop: '16px' }}
               >
-                🎙 Start Answering Now
+                🎙 Ready to Answer
               </button>
             </div>
           )}

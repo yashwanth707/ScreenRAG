@@ -1,10 +1,5 @@
 """
-ScreenRAG — Resume Router
-
-Handles PDF resume upload, parsing, and session creation.
-
-Endpoints:
-    POST /resume/upload — Upload resume PDF + select role → creates session
+Resume router handling PDF uploads and session creation.
 """
 
 import os
@@ -27,18 +22,8 @@ async def upload_resume(
     file: UploadFile = File(..., description="PDF resume file"),
     role: str = Form(..., description="Target role: ai_ml, backend, or data_science"),
 ):
-    """
-    Upload a candidate's resume and create an interview session.
-    
-    Pipeline:
-        1. Validate file (must be PDF)
-        2. Save to uploads/ directory
-        3. Parse with pdfplumber + LLM
-        4. Create session in database
-        5. Delete the uploaded file (privacy)
-        6. Return session info
-    """
-    # Validate role
+    """Upload a candidate's resume and create an interview session."""
+
     valid_roles = {"ai_ml", "backend", "data_science"}
     if role not in valid_roles:
         raise HTTPException(
@@ -46,7 +31,7 @@ async def upload_resume(
             detail=f"Invalid role '{role}'. Must be one of: {', '.join(valid_roles)}",
         )
 
-    # Validate file
+
     if not file.filename:
         raise HTTPException(status_code=400, detail="No filename provided.")
 
@@ -56,7 +41,7 @@ async def upload_resume(
             detail="Only PDF files are accepted. Please upload a .pdf file.",
         )
 
-    # Save file to uploads directory
+
     os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
     file_id = str(uuid.uuid4())
     file_path = os.path.join(settings.UPLOAD_DIR, f"{file_id}.pdf")
@@ -79,7 +64,7 @@ async def upload_resume(
             detail=f"Failed to save uploaded file: {str(e)}",
         )
 
-    # Parse the resume
+
     try:
         resume_data = await parse_resume_pdf(file_path)
     except ValueError as e:
@@ -91,7 +76,6 @@ async def upload_resume(
             detail=f"Failed to parse resume: {str(e)}",
         )
     finally:
-        # Always delete the uploaded file after parsing (privacy)
         if os.path.exists(file_path):
             try:
                 os.remove(file_path)
@@ -99,7 +83,7 @@ async def upload_resume(
             except OSError as e:
                 logger.warning(f"Failed to delete uploaded file: {e}")
 
-    # Create session
+
     try:
         session_id = await start_session(role, resume_data)
     except Exception as e:

@@ -1,10 +1,5 @@
 """
-ScreenRAG — Summary Router
-
-Generates structured interview summaries using LLM analysis.
-
-Endpoints:
-    GET /summary/{session_id} — Generate and return interview summary
+Summary router for generating structured interview summaries.
 """
 
 import logging
@@ -21,9 +16,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/summary", tags=["Summary"])
 
 
-# ---------------------------------------------------------------------------
-# LLM prompt for summary generation
-# ---------------------------------------------------------------------------
+# LLM prompt
 SUMMARY_PROMPT = """Analyze the following technical interview transcript and provide a structured assessment.
 
 Role: {role}
@@ -55,9 +48,7 @@ SUMMARY_SYSTEM = (
 )
 
 
-# ---------------------------------------------------------------------------
 # Confidence score heuristic
-# ---------------------------------------------------------------------------
 def _compute_confidence_score(
     qa_pairs: list[dict],
     voice_metrics_map: dict[str, dict] | None = None,
@@ -101,23 +92,10 @@ def _compute_confidence_score(
     return round(min(10.0, avg), 1)
 
 
-# ---------------------------------------------------------------------------
 # Endpoint
-# ---------------------------------------------------------------------------
 @router.get("/{session_id}", response_model=SummaryResponse)
 async def get_summary(session_id: str):
-    """
-    Generate a structured summary of an interview session.
-    
-    Pipeline:
-        1. Fetch all Q&A pairs
-        2. Build interview transcript for LLM
-        3. Generate structured analysis via LLM
-        4. Compute confidence score heuristic
-        5. Mark session as completed
-        6. Return summary
-    """
-    # Fetch session
+    """Generate a structured summary of an interview session."""
     session = await get_session(session_id)
     if not session:
         raise HTTPException(
@@ -132,13 +110,11 @@ async def get_summary(session_id: str):
             detail="No questions found for this session.",
         )
 
-    # Fetch voice metrics for all questions in the session
     voice_metrics_list = await database.get_voice_metrics_for_session(session_id)
     voice_metrics_map = {
         vm["question_id"]: vm for vm in voice_metrics_list
     }
 
-    # Build transcript for LLM
     role_display = {
         "ai_ml": "AI/ML Engineer",
         "backend": "Backend Engineer",
@@ -160,7 +136,6 @@ async def get_summary(session_id: str):
         )
     transcript = "\n\n".join(transcript_parts)
 
-    # Generate LLM analysis
     prompt = SUMMARY_PROMPT.format(
         role=role_display.get(role, role),
         candidate_name=candidate_name,
@@ -178,10 +153,8 @@ async def get_summary(session_id: str):
             "overall_assessment": "Interview completed. Detailed analysis unavailable.",
         }
 
-    # Compute confidence score (uses voice metrics when available)
     confidence = _compute_confidence_score(qa_pairs_raw, voice_metrics_map)
 
-    # Build response Q&A pairs with voice metrics attached
     qa_response = []
     for qa in qa_pairs_raw:
         q_id = qa.get("question_id", "")
@@ -216,10 +189,8 @@ async def get_summary(session_id: str):
             voice_metrics=voice_data,
         ))
 
-    # Count answers
     answers_given = sum(1 for qa in qa_pairs_raw if qa.get("answer_text"))
 
-    # Compute voice aggregate stats
     voice_aggregate = None
     if voice_metrics_list:
         vm_count = len(voice_metrics_list)
@@ -240,7 +211,6 @@ async def get_summary(session_id: str):
             voice_answers_count=vm_count,
         )
 
-    # Mark session as completed
     await complete_session(session_id)
 
     return SummaryResponse(

@@ -1,12 +1,5 @@
 /**
- * LandingPage — Step 1: Resume Upload + Role Selection
- *
- * Two-step form:
- *   A. Upload PDF resume (drag-and-drop)
- *   B. Select target role (3 cards)
- *   → "Start Interview" button
- *
- * On submit: uploads resume, creates session, navigates to /interview
+ * Step 1: Resume Upload + Role Selection
  */
 
 import React, { useState } from 'react';
@@ -41,7 +34,7 @@ export default function LandingPage() {
 
       const data = await uploadResume(formData);
 
-      // Store session in context
+
       setSession({
         sessionId: data.session_id,
         role: data.role,
@@ -50,7 +43,7 @@ export default function LandingPage() {
         experienceLevel: data.experience_level,
       });
 
-      // Navigate to interview
+
       navigate('/interview');
     } catch (err) {
       console.error('Upload failed:', err);
@@ -66,7 +59,7 @@ export default function LandingPage() {
 
   return (
     <div className={styles.page}>
-      {/* Header */}
+
       <header className={styles.header}>
         <div className={styles.logo}>
           <span className={styles.logoIcon}>◆</span>
@@ -74,21 +67,20 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Hero */}
+
       <div className={styles.hero}>
         <h1 className={styles.title}>
-          AI-Powered <span className="text-gradient">Technical Interview</span>
+          Your Personal <span className="text-gradient">Technical Interview</span>
         </h1>
         <p className={styles.subtitle}>
-          Upload your resume, choose a role, and experience a personalized
-          interview powered by RAG-grounded AI questions.
+          Let's get started. Share your resume and pick a role to experience a dynamic, friendly interview tailored just for you.
         </p>
       </div>
 
-      {/* Form */}
+
       <div className={styles.formContainer}>
         <div className={`glass-card ${styles.formCard} animate-fade-in-up`}>
-          {/* Step 1: Resume Upload */}
+
           <div className={styles.step}>
             <div className={styles.stepBadge}>
               <span className={styles.stepNumber}>1</span>
@@ -97,7 +89,7 @@ export default function LandingPage() {
             <ResumeUpload file={file} onFileSelect={setFile} />
           </div>
 
-          {/* Step 2: Role Selection */}
+
           <div className={`${styles.step} ${!file ? styles.stepDisabled : ''}`}>
             <div className={styles.stepBadge}>
               <span className={styles.stepNumber}>2</span>
@@ -109,7 +101,7 @@ export default function LandingPage() {
             />
           </div>
 
-          {/* Error */}
+
           {error && (
             <div className={styles.error}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -121,7 +113,7 @@ export default function LandingPage() {
             </div>
           )}
 
-          {/* Submit */}
+
           <button
             className={`btn btn-primary ${styles.submitBtn}`}
             onClick={handleSubmit}
@@ -131,11 +123,11 @@ export default function LandingPage() {
             {isLoading ? (
               <>
                 <span className="spinner spinner-sm" />
-                Parsing your resume...
+                Preparing your interview...
               </>
             ) : (
               <>
-                Start Interview
+                Let's Begin
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="5" y1="12" x2="19" y2="12" />
                   <polyline points="12 5 19 12 12 19" />
@@ -146,7 +138,7 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* Footer */}
+
       <footer className={styles.footer}>
         <p>Powered by Ollama + ChromaDB + Sentence Transformers</p>
       </footer>

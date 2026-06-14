@@ -1,20 +1,6 @@
 """
-ScreenRAG — Session Manager Service
-
-Manages interview session lifecycle and state transitions:
-    UPLOAD → ACTIVE → COMPLETED
-
-Coordinates between database layer and business logic:
-    - Session creation with resume data
-    - Question/answer persistence
-    - Session completion and validation
-    - Q&A pair retrieval for summaries
-
-Usage:
-    session_id = await start_session("ai_ml", resume_data)
-    await save_question(session_id, question_data)
-    await save_answer(session_id, question_id, "My answer...")
-    session = await get_session(session_id)
+Manages interview session lifecycle and state transitions.
+Coordinates between database layer and business logic.
 """
 
 import uuid
@@ -27,20 +13,9 @@ from config import settings
 logger = logging.getLogger(__name__)
 
 
-# ---------------------------------------------------------------------------
 # Session lifecycle
-# ---------------------------------------------------------------------------
 async def start_session(role: str, resume_data: dict[str, Any]) -> str:
-    """
-    Create a new interview session.
-    
-    Args:
-        role: Role identifier ('ai_ml', 'backend', 'data_science').
-        resume_data: Parsed resume dict from resume_parser.
-    
-    Returns:
-        The new session UUID.
-    """
+    """Create a new interview session."""
     session_id = str(uuid.uuid4())
 
     await database.create_session(
@@ -59,12 +34,7 @@ async def start_session(role: str, resume_data: dict[str, Any]) -> str:
 
 
 async def get_session(session_id: str) -> dict[str, Any] | None:
-    """
-    Fetch a complete session with all Q&A data.
-    
-    Returns:
-        Session dict with nested questions and answers, or None if not found.
-    """
+    """Fetch a complete session with all Q&A data."""
     session = await database.get_session(session_id)
     if not session:
         return None
@@ -78,11 +48,7 @@ async def get_session(session_id: str) -> dict[str, Any] | None:
 
 
 async def get_session_data_for_generation(session_id: str) -> dict[str, Any] | None:
-    """
-    Fetch session data formatted for question generation.
-    
-    Returns a dict with: role, skills, experience_level, resume_text
-    """
+    """Fetch session data formatted for question generation."""
     session = await database.get_session(session_id)
     if not session:
         return None
@@ -117,20 +83,9 @@ def _infer_experience_from_session(session: dict) -> str:
     return "mid"
 
 
-# ---------------------------------------------------------------------------
 # Question management
-# ---------------------------------------------------------------------------
 async def save_question(session_id: str, question_data: dict[str, Any]) -> str:
-    """
-    Save a generated question to the database.
-    
-    Args:
-        session_id: The session UUID.
-        question_data: Dict with question_text, topic, difficulty, rag_context.
-    
-    Returns:
-        The new question UUID.
-    """
+    """Save a generated question to the database."""
     question_id = str(uuid.uuid4())
     question_count = await database.get_question_count(session_id)
 
@@ -152,25 +107,13 @@ async def save_question(session_id: str, question_data: dict[str, Any]) -> str:
     return question_id
 
 
-# ---------------------------------------------------------------------------
 # Answer management
-# ---------------------------------------------------------------------------
 async def save_answer(
     session_id: str,
     question_id: str,
     answer_text: str,
 ) -> str:
-    """
-    Save a candidate's answer to a question.
-    
-    Args:
-        session_id: The session UUID.
-        question_id: The question UUID being answered.
-        answer_text: The candidate's answer text.
-    
-    Returns:
-        The new answer UUID.
-    """
+    """Save a candidate's answer to a question."""
     answer_id = str(uuid.uuid4())
 
     await database.save_answer(
@@ -184,9 +127,7 @@ async def save_answer(
     return answer_id
 
 
-# ---------------------------------------------------------------------------
 # Session completion
-# ---------------------------------------------------------------------------
 async def complete_session(session_id: str) -> None:
     """Mark a session as completed."""
     await database.update_session_status(session_id, "completed")
@@ -194,26 +135,14 @@ async def complete_session(session_id: str) -> None:
 
 
 async def is_session_complete(session_id: str) -> bool:
-    """
-    Check if a session has reached the maximum number of questions.
-    
-    Returns:
-        True if MAX_QUESTIONS have been asked, False otherwise.
-    """
+    """Check if a session has reached the maximum number of questions."""
     question_count = await database.get_question_count(session_id)
     return question_count >= settings.MAX_QUESTIONS
 
 
-# ---------------------------------------------------------------------------
-# Previous Q&A retrieval (for question generation context)
-# ---------------------------------------------------------------------------
+# Previous Q&A retrieval
 async def get_previous_qa(session_id: str) -> list[dict]:
-    """
-    Get all previous Q&A pairs formatted for the question generator.
-    
-    Returns:
-        List of {question, answer, topic} dicts.
-    """
+    """Get all previous Q&A pairs formatted for the question generator."""
     qa_pairs = await database.get_session_qa_pairs(session_id)
     
     return [

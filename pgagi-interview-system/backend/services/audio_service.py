@@ -1,20 +1,6 @@
 """
-ScreenRAG — Audio Service (VocalGauge Integration)
-
-Ported from VocalGauge V1. Provides a complete audio analysis pipeline
-for voice-based interview answers:
-
-    1. Audio validation & preprocessing (pydub)
-    2. Speech-to-text transcription (Whisper)
-    3. Local speech metrics (WPM, fillers, pacing, hesitation)
-    4. Audio signal metrics (pauses, pitch variance)
-    5. Naturalness scoring (reading detection)
-    6. Composite confidence scoring
-
-Usage:
-    result = await process_voice_answer(audio_path, question_asked_at)
-    # result.transcript  → feeds into existing RAG evaluation
-    # result.naturalness_score → reading vs. natural detection
+Audio analysis pipeline for voice-based interview answers.
+Handles audio preprocessing, Whisper transcription, and VocalGauge metrics.
 """
 
 import os
@@ -34,9 +20,7 @@ from config import settings
 logger = logging.getLogger(__name__)
 
 
-# ============================================================
-# Constants — ported from VocalGauge scoring.py
-# ============================================================
+# Constants
 SUPPORTED_FORMATS = {"mp3", "wav", "m4a", "ogg", "mp4", "flac", "webm"}
 
 FILLER_WORDS = [
@@ -49,9 +33,7 @@ OPTIMAL_WPM_LOW = 120
 OPTIMAL_WPM_HIGH = 160
 
 
-# ============================================================
 # Data classes
-# ============================================================
 @dataclass
 class VoiceAnalysisResult:
     """Complete analysis result for a voice answer."""
@@ -77,9 +59,7 @@ class VoiceAnalysisResult:
     hesitation_count: int = 0
 
 
-# ============================================================
-# Whisper transcription — lazy-loaded singleton
-# ============================================================
+# Whisper transcription
 _whisper_model = None
 
 
@@ -118,9 +98,7 @@ def transcribe_audio(wav_path: str) -> dict:
     }
 
 
-# ============================================================
-# Audio preprocessing — ported from VocalGauge audio_utils.py
-# ============================================================
+# Audio preprocessing
 class AudioProcessingError(Exception):
     """Raised when audio processing fails."""
     pass
@@ -193,9 +171,7 @@ def validate_and_preprocess(input_path: str, output_dir: str | None = None) -> t
     return output_path, duration_seconds
 
 
-# ============================================================
-# Audio signal metrics — ported from VocalGauge audio_utils.py
-# ============================================================
+# Audio signal metrics
 def extract_audio_metrics(file_path: str) -> dict:
     """
     Extract physical audio metrics (pauses and pitch variance).
@@ -271,9 +247,7 @@ def extract_audio_metrics(file_path: str) -> dict:
         }
 
 
-# ============================================================
-# Text-based speech metrics — ported from VocalGauge scoring.py
-# ============================================================
+# Text-based speech metrics
 def compute_speech_metrics(transcript: str, duration_seconds: float) -> dict:
     """
     Compute rule-based speech metrics from the transcript text.
@@ -358,9 +332,7 @@ def compute_speech_metrics(transcript: str, duration_seconds: float) -> dict:
     }
 
 
-# ============================================================
-# Naturalness scoring — NEW (reading vs. natural detection)
-# ============================================================
+# Naturalness scoring
 def compute_naturalness_score(
     pitch_variance: float,
     pacing_consistency: float,
@@ -441,9 +413,7 @@ def compute_naturalness_score(
     return round(min(10, max(0, naturalness)), 2)
 
 
-# ============================================================
 # Composite voice confidence score
-# ============================================================
 def compute_voice_confidence(
     wpm: float,
     filler_percentage: float,
@@ -518,9 +488,7 @@ def compute_voice_confidence(
     return round(min(10, max(0, confidence)), 2)
 
 
-# ============================================================
-# Main pipeline — orchestrates the full analysis
-# ============================================================
+# Main pipeline
 async def process_voice_answer(
     audio_path: str,
     question_asked_at: str | None = None,

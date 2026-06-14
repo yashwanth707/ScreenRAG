@@ -1,12 +1,6 @@
-/* ============================================================
-   ScreenRAG — Global Design System
-   Premium dark theme with glassmorphism, gradient accents,
-   and smooth micro-animations.
-   ============================================================ */
+/* Global Design System */
 
-/* ---------------------------------------------------------------------------
-   CSS Custom Properties — Design Tokens
-   --------------------------------------------------------------------------- */
+/* Design Tokens */
 :root {
   /* Color Palette — Deep navy/charcoal base */
   --bg-primary: #0a0e1a;
@@ -80,9 +74,7 @@
   --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* ---------------------------------------------------------------------------
-   Reset & Base
-   --------------------------------------------------------------------------- */
+/* Reset & Base */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -122,9 +114,7 @@ a:hover {
   color: var(--accent-cyan-light);
 }
 
-/* ---------------------------------------------------------------------------
-   Typography
-   --------------------------------------------------------------------------- */
+/* Typography */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   line-height: 1.3;
@@ -142,9 +132,7 @@ code, pre {
   font-family: var(--font-mono);
 }
 
-/* ---------------------------------------------------------------------------
-   Glassmorphism Card
-   --------------------------------------------------------------------------- */
+/* Glassmorphism Card */
 .glass-card {
   background: var(--bg-card);
   backdrop-filter: blur(16px);
@@ -161,9 +149,7 @@ code, pre {
   box-shadow: var(--shadow-glow-violet);
 }
 
-/* ---------------------------------------------------------------------------
-   Buttons
-   --------------------------------------------------------------------------- */
+/* Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -225,9 +211,7 @@ code, pre {
   background: var(--bg-card);
 }
 
-/* ---------------------------------------------------------------------------
-   Form Elements
-   --------------------------------------------------------------------------- */
+/* Form Elements */
 input, textarea, select {
   font-family: var(--font-sans);
   font-size: 0.95rem;
@@ -252,9 +236,7 @@ textarea {
   line-height: 1.6;
 }
 
-/* ---------------------------------------------------------------------------
-   Badges
-   --------------------------------------------------------------------------- */
+/* Badges */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -296,9 +278,7 @@ textarea {
   border: 1px solid rgba(244, 63, 94, 0.25);
 }
 
-/* ---------------------------------------------------------------------------
-   Progress Bar
-   --------------------------------------------------------------------------- */
+/* Progress Bar */
 .progress-track {
   width: 100%;
   height: 6px;
@@ -314,9 +294,7 @@ textarea {
   transition: width var(--transition-slow);
 }
 
-/* ---------------------------------------------------------------------------
-   Animations
-   --------------------------------------------------------------------------- */
+/* Animations */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -403,9 +381,7 @@ textarea {
 .delay-4 { animation-delay: 400ms; }
 .delay-5 { animation-delay: 500ms; }
 
-/* ---------------------------------------------------------------------------
-   Spinner
-   --------------------------------------------------------------------------- */
+/* Spinner */
 .spinner {
   width: 40px;
   height: 40px;
@@ -421,9 +397,7 @@ textarea {
   border-width: 2px;
 }
 
-/* ---------------------------------------------------------------------------
-   Typing Indicator
-   --------------------------------------------------------------------------- */
+/* Typing Indicator */
 .typing-indicator {
   display: inline-flex;
   align-items: center;
@@ -447,9 +421,7 @@ textarea {
   animation-delay: 0.4s;
 }
 
-/* ---------------------------------------------------------------------------
-   Layout Utilities
-   --------------------------------------------------------------------------- */
+/* Layout Utilities */
 .container {
   width: 100%;
   max-width: 1100px;
@@ -480,9 +452,7 @@ textarea {
   background-clip: text;
 }
 
-/* ---------------------------------------------------------------------------
-   Scrollbar Styling
-   --------------------------------------------------------------------------- */
+/* Scrollbar Styling */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -500,9 +470,7 @@ textarea {
   background: var(--border-medium);
 }
 
-/* ---------------------------------------------------------------------------
-   Responsive
-   --------------------------------------------------------------------------- */
+/* Responsive */
 @media (max-width: 768px) {
   h1 { font-size: 1.75rem; }
   h2 { font-size: 1.35rem; }

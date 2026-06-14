@@ -1,11 +1,5 @@
 /**
- * SummaryPage — Step 3: Session Results
- *
- * Fetches and displays the complete interview summary:
- * - AI-generated analysis
- * - Q&A transcript
- * - Confidence score
- * - Download and restart actions
+ * Step 3: Session Results
  */
 
 import React, { useState, useEffect } from 'react';
@@ -53,7 +47,7 @@ export default function SummaryPage() {
 
   return (
     <div className={styles.page}>
-      {/* Header */}
+
       <header className={styles.header}>
         <div className={styles.headerLeft}>
           <span className={styles.logoIcon}>◆</span>
@@ -63,7 +57,7 @@ export default function SummaryPage() {
         <div className={styles.headerRight} />
       </header>
 
-      {/* Content */}
+
       <main className={styles.main}>
         <div className={styles.container}>
           {isLoading && (

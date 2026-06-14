@@ -1,9 +1,5 @@
 /**
- * ResumeUpload Component
- *
- * Drag-and-drop or click-to-upload PDF zone.
- * Shows filename and file size after selection.
- * Validates file type (PDF only).
+ * Drag-and-drop PDF upload component.
  */
 
 import React, { useRef, useState, useCallback } from 'react';
@@ -56,7 +52,7 @@ export default function ResumeUpload({ file, onFileSelect }) {
 
   return (
     <div className={styles.wrapper}>
-      <label className={styles.label}>Upload Your Resume</label>
+      <label className={styles.label}>Share Your Resume</label>
 
       <div
         className={`${styles.dropzone} ${isDragOver ? styles.dragOver : ''} ${file ? styles.hasFile : ''}`}
@@ -105,7 +101,7 @@ export default function ResumeUpload({ file, onFileSelect }) {
               </svg>
             </div>
             <p className={styles.placeholderText}>
-              <strong>Drop your PDF resume here</strong>
+              <strong>Drop your resume here</strong>
               <br />
               or click to browse
             </p>

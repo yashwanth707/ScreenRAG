@@ -1,5 +1,5 @@
 /**
- * ScreenRAG — React Entry Point
+ * React Entry Point
  */
 import React from 'react';
 import ReactDOM from 'react-dom/client';

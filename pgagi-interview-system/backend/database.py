@@ -1,18 +1,6 @@
 """
-ScreenRAG — SQLite Database Layer
-
-Provides persistent storage for interview sessions, questions, and answers
-using async SQLite via aiosqlite. No ORM — all queries use parameterized SQL.
-
-Tables:
-    - sessions:  Interview sessions (one per candidate upload)
-    - questions: Generated interview questions per session
-    - answers:   Candidate responses linked to questions
-
-Usage:
-    await init_db()           # Call once at startup
-    await create_session(...) # Create new session
-    await fetch_one(...)      # Generic single-row fetch
+SQLite database layer for persistent storage of sessions, questions, and answers.
+Uses aiosqlite for async operations.
 """
 
 import os
@@ -28,11 +16,7 @@ from config import settings
 logger = logging.getLogger(__name__)
 
 
-# ---------------------------------------------------------------------------
-# Database path — derived from settings, ensure directory exists
-# ---------------------------------------------------------------------------
 def _get_db_path() -> str:
-    """Resolve the absolute database path from settings."""
     db_path = settings.DB_PATH
     db_dir = os.path.dirname(db_path)
     if db_dir:
@@ -43,9 +27,7 @@ def _get_db_path() -> str:
 DB_PATH = _get_db_path()
 
 
-# ---------------------------------------------------------------------------
 # Schema definitions
-# ---------------------------------------------------------------------------
 SCHEMA_SQL = """
 -- Sessions table: one row per candidate interview
 CREATE TABLE IF NOT EXISTS sessions (
@@ -111,23 +93,16 @@ CREATE TABLE IF NOT EXISTS voice_metrics (
 """
 
 
-# ---------------------------------------------------------------------------
-# Initialization
-# ---------------------------------------------------------------------------
+
 async def init_db() -> None:
-    """
-    Initialize the database: create tables if they don't exist.
-    Call this once during application startup (lifespan event).
-    """
+    """Initialize the database tables if they don't exist."""
     async with aiosqlite.connect(DB_PATH) as db:
         await db.executescript(SCHEMA_SQL)
         await db.commit()
     logger.info(f"Database initialized at {DB_PATH}")
 
 
-# ---------------------------------------------------------------------------
-# Generic query helpers — DRY database access
-# ---------------------------------------------------------------------------
+# Generic query helpers
 async def execute(query: str, params: tuple = ()) -> None:
     """Execute a write query (INSERT, UPDATE, DELETE)."""
     async with aiosqlite.connect(DB_PATH) as db:
@@ -136,10 +111,7 @@ async def execute(query: str, params: tuple = ()) -> None:
 
 
 async def fetch_one(query: str, params: tuple = ()) -> dict | None:
-    """
-    Fetch a single row as a dictionary.
-    Returns None if no rows match.
-    """
+    """Fetch a single row as a dict. Returns None if no match."""
     async with aiosqlite.connect(DB_PATH) as db:
         db.row_factory = aiosqlite.Row
         cursor = await db.execute(query, params)
@@ -156,9 +128,7 @@ async def fetch_all(query: str, params: tuple = ()) -> list[dict]:
         return [dict(row) for row in rows]
 
 
-# ---------------------------------------------------------------------------
 # Session CRUD
-# ---------------------------------------------------------------------------
 async def create_session(
     session_id: str,
     candidate_name: str,
@@ -202,9 +172,7 @@ async def update_session_status(session_id: str, status: str) -> None:
     )
 
 
-# ---------------------------------------------------------------------------
 # Question CRUD
-# ---------------------------------------------------------------------------
 async def save_question(
     question_id: str,
     session_id: str,
@@ -241,9 +209,7 @@ async def get_question_count(session_id: str) -> int:
         return row[0] if row else 0
 
 
-# ---------------------------------------------------------------------------
 # Answer CRUD
-# ---------------------------------------------------------------------------
 async def save_answer(
     answer_id: str,
     session_id: str,
@@ -274,14 +240,9 @@ async def get_answer_for_question(question_id: str) -> dict | None:
     )
 
 
-# ---------------------------------------------------------------------------
-# Composite queries — join questions with answers
-# ---------------------------------------------------------------------------
+# Composite queries
 async def get_session_qa_pairs(session_id: str) -> list[dict]:
-    """
-    Fetch all question-answer pairs for a session.
-    Returns a list of dicts with question and answer fields merged.
-    """
+    """Fetch all question-answer pairs for a session as a merged dict."""
     return await fetch_all(
         """SELECT q.id as question_id, q.question_number, q.question_text,
                   q.topic, q.difficulty, q.rag_context,
@@ -294,9 +255,7 @@ async def get_session_qa_pairs(session_id: str) -> list[dict]:
     )
 
 
-# ---------------------------------------------------------------------------
 # Voice Metrics CRUD
-# ---------------------------------------------------------------------------
 async def save_voice_metrics(
     metrics_id: str,
     answer_id: str,

@@ -1,12 +1,5 @@
 /**
- * SessionSummary Component — Enhanced with Voice Analytics
- *
- * Displays the complete interview summary:
- * - Q&A transcript cards with voice metric badges
- * - Voice Aggregate stats panel (when voice answers exist)
- * - AI analysis (strengths, improvements, topics)
- * - Confidence score
- * - Download and restart actions
+ * Displays the complete interview summary.
  */
 
 import React from 'react';
@@ -89,7 +82,7 @@ export default function SessionSummary({ data, onRestart }) {
 
     content += `\n${'='.repeat(60)}\n\n`;
 
-    // Q&A
+
     qa_pairs.forEach((qa) => {
       const mode = qa.answer_mode === 'voice' ? ' [VOICE]' : '';
       content += `Q${qa.question_number} [${qa.topic || 'general'}] (${qa.difficulty || '-'})${mode}:\n`;
@@ -106,7 +99,7 @@ export default function SessionSummary({ data, onRestart }) {
       content += `\n${'-'.repeat(40)}\n\n`;
     });
 
-    // Analysis
+
     content += `\n${'='.repeat(60)}\n`;
     content += `ANALYSIS\n${'='.repeat(60)}\n\n`;
     content += `Topics Covered: ${analysis.topics_covered.join(', ')}\n\n`;
@@ -131,7 +124,7 @@ export default function SessionSummary({ data, onRestart }) {
 
   return (
     <div className={styles.summary}>
-      {/* Candidate Info Card */}
+
       <div className={`glass-card ${styles.infoCard}`}>
         <div className={styles.infoGrid}>
           <div className={styles.infoItem}>
@@ -155,7 +148,7 @@ export default function SessionSummary({ data, onRestart }) {
         </div>
       </div>
 
-      {/* Voice Analytics Panel */}
+
       {voiceAgg && voiceAgg.voice_answers_count > 0 && (
         <div className={`glass-card ${styles.voicePanel}`}>
           <h3 className={styles.sectionTitle}>
@@ -189,16 +182,16 @@ export default function SessionSummary({ data, onRestart }) {
         </div>
       )}
 
-      {/* Analysis Section */}
+
       <div className={styles.analysisSection}>
         <h3 className={styles.sectionTitle}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
           </svg>
-          AI Analysis
+          Feedback & Insights
         </h3>
 
-        {/* Topics */}
+
         <div className={styles.analysisBlock}>
           <h4 className={styles.blockTitle}>Topics Covered</h4>
           <div className={styles.topicTags}>
@@ -210,10 +203,10 @@ export default function SessionSummary({ data, onRestart }) {
           </div>
         </div>
 
-        {/* Strengths */}
+
         <div className={styles.analysisBlock}>
           <h4 className={`${styles.blockTitle} ${styles.strengthTitle}`}>
-            ✦ Strengths
+            ✦ What You Did Great
           </h4>
           <ul className={styles.list}>
             {analysis.strengths.map((s, i) => (
@@ -222,10 +215,10 @@ export default function SessionSummary({ data, onRestart }) {
           </ul>
         </div>
 
-        {/* Areas for Improvement */}
+
         <div className={styles.analysisBlock}>
           <h4 className={`${styles.blockTitle} ${styles.improvementTitle}`}>
-            ▲ Areas for Improvement
+            ▲ Opportunities to Grow
           </h4>
           <ul className={styles.list}>
             {analysis.areas_for_improvement.map((a, i) => (
@@ -234,7 +227,7 @@ export default function SessionSummary({ data, onRestart }) {
           </ul>
         </div>
 
-        {/* Overall Assessment */}
+
         {analysis.overall_assessment && (
           <div className={`glass-card ${styles.assessmentCard}`}>
             <p className={styles.assessmentText}>
@@ -244,7 +237,7 @@ export default function SessionSummary({ data, onRestart }) {
         )}
       </div>
 
-      {/* Q&A Transcript */}
+
       <div className={styles.transcriptSection}>
         <h3 className={styles.sectionTitle}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -302,7 +295,7 @@ export default function SessionSummary({ data, onRestart }) {
         </div>
       </div>
 
-      {/* Actions */}
+
       <div className={styles.actions}>
         <button className="btn btn-secondary" onClick={handleDownload} id="download-summary-btn">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

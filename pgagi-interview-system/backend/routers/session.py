@@ -1,10 +1,5 @@
 """
-ScreenRAG — Session Router
-
-Handles session retrieval.
-
-Endpoints:
-    GET /session/{session_id} — Get full session with all Q&A data
+Session router handling session retrieval.
 """
 
 import logging
@@ -20,11 +15,7 @@ router = APIRouter(prefix="/session", tags=["Session"])
 
 @router.get("/{session_id}", response_model=SessionResponse)
 async def get_session_endpoint(session_id: str):
-    """
-    Retrieve a complete session by ID.
-    
-    Returns the session metadata along with all question-answer pairs.
-    """
+    """Retrieve a complete session by ID."""
     session = await get_session(session_id)
 
     if not session:
@@ -33,7 +24,6 @@ async def get_session_endpoint(session_id: str):
             detail=f"Session '{session_id}' not found.",
         )
 
-    # Convert Q&A pairs to response models
     qa_pairs = [
         QAPair(
             question_id=qa.get("question_id", ""),
