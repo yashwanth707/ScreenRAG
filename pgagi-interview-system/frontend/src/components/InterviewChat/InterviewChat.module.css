@@ -1,0 +1,356 @@
+/* ============================================================
+   InterviewChat — Voice-First Interview UI
+   ============================================================ */
+
+.chatContainer {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 140px);
+  max-height: 800px;
+}
+
+.messagesArea {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-lg) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.message {
+  display: flex;
+  max-width: 85%;
+}
+
+.aiMessage {
+  align-self: flex-start;
+  animation: slideInLeft 0.3s ease-out;
+}
+
+.userMessage {
+  align-self: flex-end;
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ─── Answer Bubble ─────────────────────────────────────── */
+.answerBubble {
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--radius-sm);
+  padding: var(--space-lg);
+  max-width: 100%;
+}
+
+.answerHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xs);
+}
+
+.answerLabel {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--accent-violet-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.modeBadge {
+  font-size: 0.65rem !important;
+  padding: 0.15rem 0.5rem !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.answerText {
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ─── Voice Metrics Badges ──────────────────────────────── */
+.voiceMetrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-md);
+  padding-top: var(--space-sm);
+  border-top: 1px solid rgba(139, 92, 246, 0.1);
+}
+
+/* ─── Typing Indicator ──────────────────────────────────── */
+.typingBubble {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md) var(--space-lg);
+}
+
+.typingText {
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+/* ─── Input Area ────────────────────────────────────────── */
+.inputArea {
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* ─── Voice Error ───────────────────────────────────────── */
+.voiceError {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-sm);
+  background: rgba(244, 63, 94, 0.1);
+  border: 1px solid rgba(244, 63, 94, 0.2);
+  border-radius: var(--radius-md);
+  color: var(--accent-rose);
+  font-size: 0.82rem;
+}
+
+/* ─── Recording Panel ───────────────────────────────────── */
+.recordingPanel {
+  background: rgba(139, 92, 246, 0.06);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.recordingHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+
+.recordingIndicator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.recordingDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent-rose);
+  animation: recordPulse 1.2s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(244, 63, 94, 0.6);
+}
+
+@keyframes recordPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+.recordingLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent-rose);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.recordingTimer {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-md);
+}
+
+/* ─── Waveform Canvas ───────────────────────────────────── */
+.waveformCanvas {
+  width: 100%;
+  height: 64px;
+  border-radius: var(--radius-md);
+  background: rgba(0, 0, 0, 0.15);
+  margin-bottom: var(--space-md);
+}
+
+/* ─── Recording Controls ────────────────────────────────── */
+.recordingControls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.stopBtn {
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%) !important;
+  box-shadow: 0 4px 16px rgba(244, 63, 94, 0.3) !important;
+}
+
+.stopBtn:hover:not(:disabled) {
+  box-shadow: 0 6px 24px rgba(244, 63, 94, 0.45) !important;
+}
+
+.textFallbackBtn {
+  font-size: 0.85rem !important;
+}
+
+.skipBtn {
+  font-size: 0.85rem !important;
+  color: var(--text-tertiary) !important;
+}
+
+.skipBtn:hover:not(:disabled) {
+  color: var(--accent-amber) !important;
+}
+
+/* ─── Processing Panel ──────────────────────────────────── */
+.processingPanel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-xl);
+  background: rgba(139, 92, 246, 0.06);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  border-radius: var(--radius-lg);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.processingText {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* ─── Text Input Mode ───────────────────────────────────── */
+.inputWrapper {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: flex-start;
+}
+
+.textarea {
+  flex: 1;
+  min-height: 60px;
+  max-height: 200px;
+  resize: none;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  transition: border-color var(--transition-fast);
+}
+
+.textarea:focus {
+  border-color: var(--accent-violet);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  outline: none;
+}
+
+.textControls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.submitBtn {
+  flex-shrink: 0;
+  height: 48px;
+  min-width: 120px;
+}
+
+.inputHint {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--text-tertiary);
+  margin-top: var(--space-xs);
+  font-family: var(--font-mono);
+}
+
+.switchToVoiceLink {
+  background: none;
+  border: none;
+  color: var(--accent-violet-light);
+  font-size: 0.78rem;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  padding: 0;
+  transition: color var(--transition-fast);
+}
+
+.switchToVoiceLink:hover {
+  color: var(--accent-cyan-light);
+}
+
+/* ─── Idle State ────────────────────────────────────────── */
+.idlePanel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-xl);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.idlePulse {
+  color: var(--accent-violet-light);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.idleText {
+  font-size: 0.92rem;
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+/* ─── Responsive ────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .recordingControls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .voiceMetrics {
+    gap: var(--space-xs);
+  }
+
+  .inputWrapper {
+    flex-direction: column;
+  }
+
+  .textControls {
+    flex-direction: row;
+    width: 100%;
+  }
+
+  .submitBtn {
+    flex: 1;
+  }
+}

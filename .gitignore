@@ -1,0 +1,25 @@
+# Node
+node_modules/
+dist/
+build/
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Environment
+.env
+.env.local
+
+# Databases and Data
+chroma_store/
+audio_uploads/
+uploads/
+
+# OS
+.DS_Store
+
+# Binaries
+ffmpeg/

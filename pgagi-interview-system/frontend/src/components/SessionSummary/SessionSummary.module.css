@@ -1,0 +1,295 @@
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xl);
+}
+
+/* Info Card */
+.infoCard {
+  padding: var(--space-xl);
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-lg);
+}
+
+@media (max-width: 768px) {
+  .infoGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.infoLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.infoValue {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.scoreValue {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 1.3rem;
+}
+
+/* Analysis Section */
+.analysisSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 1.2rem;
+  color: var(--text-primary);
+}
+
+.sectionTitle svg {
+  color: var(--accent-violet-light);
+}
+
+.analysisBlock {
+  padding-left: var(--space-md);
+}
+
+.blockTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: var(--space-sm);
+}
+
+.strengthTitle {
+  color: var(--accent-emerald);
+}
+
+.improvementTitle {
+  color: var(--accent-amber);
+}
+
+.topicTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.strengthItem {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  padding-left: var(--space-md);
+  position: relative;
+}
+
+.strengthItem::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--accent-emerald);
+  font-weight: 700;
+}
+
+.improvementItem {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  padding-left: var(--space-md);
+  position: relative;
+}
+
+.improvementItem::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--accent-amber);
+  font-weight: 700;
+}
+
+/* Assessment Card */
+.assessmentCard {
+  background: rgba(139, 92, 246, 0.06);
+  border-color: rgba(139, 92, 246, 0.15);
+  padding: var(--space-xl);
+  text-align: center;
+}
+
+.assessmentText {
+  color: var(--text-primary);
+  font-size: 1.05rem;
+  font-style: italic;
+  line-height: 1.7;
+}
+
+/* Voice Analytics Panel */
+.voicePanel {
+  padding: var(--space-xl);
+}
+
+.voiceScoreGrid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xl);
+  flex-wrap: wrap;
+  margin-top: var(--space-lg);
+}
+
+.scoreRing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  position: relative;
+}
+
+.scoreRingInner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scoreRingValue {
+  font-size: 1.1rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+}
+
+.scoreRingLabel {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.voiceStat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 70px;
+}
+
+.voiceStatValue {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+.voiceStatLabel {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Per-question voice metrics */
+.qaVoiceMetrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-md);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.transcriptSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.qaList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.qaCard {
+  padding: var(--space-lg);
+}
+
+.qaCard:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.qaHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.qaNumber {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent-cyan-light);
+}
+
+.qaQuestion {
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+.qaDivider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: var(--space-md) 0;
+}
+
+.qaAnswer {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.noAnswer {
+  color: var(--text-tertiary);
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--border-subtle);
+}
